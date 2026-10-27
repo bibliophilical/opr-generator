@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>One Page Report Generator 2026</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts: Inter & Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            impact: ['Montserrat', 'sans-serif'],
+          },
+          colors: {
+            navy: '#0B2545',
+            icebg: '#E0F2FE',
+            accent: '#F59E0B',
+            cyandark: '#0284C7'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- CRITICAL FIXES FOR PRINTING -->
+  <style>
+    /* UI Scrolling */
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+    /* A4 Canvas Web Preview Wrapper */
+    .a4-canvas {
+      width: 210mm;
+      height: 297mm;
+      background-color: #E0F2FE;
+      position: relative;
+      overflow: hidden;
+      box-sizing: border-box;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      margin: 0 auto;
+    }
+
+    /* Print Specific Styles */
+    @media print {
+      @page { 
+        size: A4 portrait; 
+        margin: 0 !important; /* Removes default browser margins */
+      }
+      
+      body, html { 
+        margin: 0 !important; 
+        padding: 0 !important; 
+        background-color: #E0F2FE !important;
+        width: 100% !important;
+        height: 100% !important;
+      }
+      
+      .no-print { 
+        display: none !important; 
+      }
+      
+      .print-wrapper {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: block !important;
+        background: none !important;
+      }
+
+      .a4-canvas { 
+        margin: 0 !important; 
+        border: none !important; 
+        box-shadow: none !important; 
+        width: 210mm !important; 
+        height: 297mm !important; 
+        max-height: 297mm !important; 
+        overflow: hidden !important; 
+        page-break-after: avoid !important;
+        page-break-before: avoid !important;
+        page-break-inside: avoid !important;
+        position: relative !important;
+      }
+
+      * { 
+        -webkit-print-color-adjust: exact !important; 
+        print-color-adjust: exact !important; 
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-800 text-slate-800 font-sans h-screen flex overflow-hidden">
+
+  <!-- ========================================================= -->
+  <!-- LEFT PANEL: INPUT CONTROLS (Hidden on Print) -->
+  <!-- ========================================================= -->
+  <aside class="no-print w-1/3 bg-white h-full border-r border-slate-200 flex flex-col z-20 shadow-xl">
+    
+    <!-- Top Bar -->
+    <div class="px-5 py-4 bg-navy text-white flex items-center justify-between shrink-0">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-file-invoice text-accent text-lg"></i>
+        <h2 class="font-bold tracking-wide">Report Generator</h2>
+      </div>
+      <button onclick="window.print()" class="px-3 py-1.5 bg-accent hover:bg-yellow-400 text-navy font-bold text-xs rounded-lg transition shadow-md">
+        <i class="fa-solid fa-print"></i> Cetak PDF
+      </button>
+    </div>
+
+    <!-- Form Container -->
+    <div class="p-5 overflow-y-auto custom-scrollbar flex-1 space-y-5 text-xs">
+      
+      <!-- Logo Section -->
+      <div class="space-y-2">
+        <label class="font-bold text-slate-800 border-b pb-1 block">1. Logo & Institusi</label>
+        <input type="text" id="inpInst" value="IPG KAMPUS TUANKU BAINUN" class="w-full p-2 rounded border focus:ring-2 focus:ring-navy outline-none" placeholder="Nama Institusi">
+        <input type="file" id="inpLogo" accept="image/*" class="w-full text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-slate-100 cursor-pointer">
+      </div>
+
+      <!-- Title Section -->
+      <div class="space-y-2">
+        <label class="font-bold text-slate-800 border-b pb-1 block">2. Banner Utama</label>
+        <input type="text" id="inpTitle" value="PROGRAM EKSPLORASI PENDIDIKAN KHAS PRASEKOLAH" class="w-full p-2 rounded border focus:ring-2 focus:ring-navy outline-none font-bold" placeholder="Tajuk Utama">
+        <input type="text" id="inpSubtitle" value="PEMBANGUNAN KANDUNGAN DIGITAL" class="w-full p-2 rounded border focus:ring-2 focus:ring-navy outline-none" placeholder="Subtajuk">
+      </div>
+
+      <!-- Info Section -->
+      <div class="space-y-2">
+        <label class="font-bold text-slate-800 border-b pb-1 block">3. Butiran Program</label>
+        <div class="grid grid-cols-2 gap-2">
+          <input type="text" id="inpDate" value="12 Oktober 2026" class="w-full p-2 rounded border" placeholder="Tarikh">
+          <input type="text" id="inpDay" value="Isnin - Selasa" class="w-full p-2 rounded border" placeholder="Hari">
+        </div>
+        <input type="text" id="inpVenue" value="Dewan Kuliah Teknologi" class="w-full p-2 rounded border" placeholder="Tempat">
+        <input type="text" id="inpOrg" value="PISMP Pendidikan Khas Prasekolah" class="w-full p-2 rounded border" placeholder="Anjuran">
+      </div>
+
+      <!-- Objectives & Activities -->
+      <div class="space-y-2">
+        <label class="font-bold text-slate-800 border-b pb-1 block">4. Objektif Program (Tulis bernombor)</label>
+        <textarea id="inpObj" rows="4" class="w-full p-2 rounded border outline-none leading-tight" placeholder="1. Objektif pertama...&#10;2. Objektif kedua...">1. Memberi pendedahan kepada siswa pendidik tentang pembangunan kandungan pendidikan digital secara interaktif.
+2. Meningkatkan kemahiran dalam membina bahan pembelajaran kreatif.
+3. Menggalakkan inovasi dalam pengajaran dan pembelajaran Prasekolah.</textarea>
+      </div>
+
+      <div class="space-y-2">
+        <label class="font-bold text-slate-800 border-b pb-1 block">5. Pengisian Program</label>
+        <textarea id="inpAct" rows="5" class="w-full p-2 rounded border outline-none leading-tight">1. Bengkel Interaktif
+Pendedahan berkaitan trend penggunaan teknologi dalam pendidikan prasekolah.
+
+2. Inovasi BBM
+Aktiviti pembangunan bahan bantu mengajar berasaskan digital.
+
+3. Pembentangan Kumpulan
+Sesi hands-on menghasilkan bahan PdP digital.</textarea>
+      </div>
+
+      <div class="space-y-2">
+        <label class="font-bold text-slate-800 border-b pb-1 block">6. Disediakan Oleh</label>
+        <input type="text" id="inpPrepBy" value="Jawatankuasa Pelaksana PISMP" class="w-full p-2 rounded border" placeholder="Nama / Jabatan">
+      </div>
+
+      <!-- Image Uploads -->
+      <div class="space-y-2">
+        <label class="font-bold text-slate-800 border-b pb-1 flex items-center justify-between">
+          <span>7. Gambar Dokumentasi (6 Keping)</span>
+        </label>
+        <div class="grid grid-cols-2 gap-2" id="imageInputs">
+          <!-- JS injected -->
+        </div>
+      </div>
+
+      <div class="space-y-2 pb-10">
+        <label class="font-bold text-slate-800 border-b pb-1 block">8. Footer Hashtags</label>
+        <input type="text" id="inpHash" value="#PendidikanKhasPrasekolah #IPGKTB" class="w-full p-2 rounded border" placeholder="Hashtags">
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ========================================================= -->
+  <!-- RIGHT PANEL: A4 CANVAS PREVIEW & PRINT AREA -->
+  <!-- ========================================================= -->
+  <main class="w-2/3 h-full bg-slate-700 overflow-y-auto p-4 sm:p-8 flex items-start justify-center print-wrapper">
+    
+    <!-- STRICT A4 CANVAS -->
+    <div id="a4Canvas" class="a4-canvas">
+      
+      <!-- TOP RIGHT DECORATIVE SVG (Wave & Dots) -->
+      <div class="absolute top-0 right-0 w-[80mm] h-[60mm] pointer-events-none z-0">
+        <svg viewBox="0 0 200 150" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full" preserveAspectRatio="none">
+          <pattern id="dotTop" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1.2" fill="#ffffff" fill-opacity="0.6"/>
+          </pattern>
+          <path d="M 30 0 C 80 50, 150 60, 200 100 L 200 0 Z" fill="#F59E0B"/>
+          <path d="M 60 0 C 100 55, 170 70, 200 115 L 200 0 Z" fill="#0284C7"/>
+          <path d="M 90 0 C 130 65, 180 80, 200 135 L 200 0 Z" fill="#0B2545"/>
+          <path d="M 90 0 C 130 65, 180 80, 200 135 L 200 0 Z" fill="url(#dotTop)"/>
+        </svg>
+      </div>
+
+      <!-- BOTTOM LEFT DECORATIVE SVG -->
+      <div class="absolute bottom-[12mm] left-0 w-[80mm] h-[60mm] pointer-events-none z-0">
+        <svg viewBox="0 0 200 150" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full" preserveAspectRatio="none">
+          <pattern id="dotBottom" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1.2" fill="#ffffff" fill-opacity="0.6"/>
+          </pattern>
+          <path d="M 0 150 C 40 90, 110 80, 180 30 L 0 30 Z" fill="#F59E0B" transform="translate(0, 120) scale(1, -1)"/>
+          <path d="M 0 150 C 50 100, 130 85, 200 45 L 0 45 Z" fill="#0284C7" transform="translate(0, 105) scale(1, -1)"/>
+          <path d="M 0 150 C 60 110, 140 100, 200 60 L 0 60 Z" fill="#0B2545" transform="translate(0, 90) scale(1, -1)"/>
+          <path d="M 0 150 C 60 110, 140 100, 200 60 L 0 60 Z" fill="url(#dotBottom)" transform="translate(0, 90) scale(1, -1)"/>
+        </svg>
+      </div>
+
+      <!-- CANVAS CONTENT WRAPPER -->
+      <div class="absolute inset-0 flex flex-col z-10">
+        
+        <!-- HEADER (Title & Logo) -->
+        <div class="pt-[8mm] px-[12mm] flex items-start justify-between shrink-0">
+          <!-- Text One Page Report -->
+          <div class="font-impact leading-none">
+            <div class="text-[26px] tracking-tight text-slate-700">ONE PAGE</div>
+            <div class="text-[32px] tracking-tight text-slate-800">REPORT</div>
+            <div class="text-[40px] tracking-tighter text-navy mt-1">2026</div>
+          </div>
+          <!-- Logo & Institution -->
+          <div class="flex flex-col items-center justify-center pt-2 pr-[20mm]">
+            <div class="w-[22mm] h-[22mm] bg-transparent flex items-center justify-center">
+              <img id="outLogo" src="https://placehold.co/200x200/0B2545/ffffff?text=LOGO" class="max-w-full max-h-full object-contain" alt="Logo">
+            </div>
+            <p id="outInst" class="text-[8.5px] font-bold text-navy text-center uppercase tracking-wider mt-1.5 w-[35mm] leading-tight">
+              IPG KAMPUS TUANKU BAINUN
+            </p>
+          </div>
+        </div>
+
+        <!-- MAIN TITLE BANNER -->
+        <div class="px-[12mm] mt-[6mm] shrink-0">
+          <div class="bg-navy rounded-xl py-3 px-4 text-center shadow-lg w-full">
+            <h1 id="outTitle" class="text-[13px] font-black uppercase text-white tracking-tight leading-snug">
+              PROGRAM EKSPLORASI PENDIDIKAN KHAS PRASEKOLAH
+            </h1>
+            <h2 id="outSubtitle" class="text-[11px] font-bold uppercase text-accent tracking-wide mt-1">
+              PEMBANGUNAN KANDUNGAN DIGITAL
+            </h2>
+          </div>
+        </div>
+
+        <!-- MAIN BODY (2 Columns) -->
+        <div class="px-[12mm] mt-[6mm] flex-1 flex gap-5 pb-[4mm]">
+          
+          <!-- LEFT COLUMN (42% Width) -->
+          <div class="w-[42%] flex flex-col space-y-[4mm] text-[10px] text-slate-900 leading-tight">
+            
+            <!-- Info Details -->
+            <div class="space-y-1">
+              <p><span class="font-bold inline-block w-[14mm]">Tarikh</span> : <span id="outDate">12 Oktober 2026</span></p>
+              <p><span class="font-bold inline-block w-[14mm]">Hari</span> : <span id="outDay">Isnin - Selasa</span></p>
+              <p><span class="font-bold inline-block w-[14mm]">Tempat</span> : <span id="outVenue">Dewan Kuliah Teknologi</span></p>
+              <p><span class="font-bold inline-block w-[14mm]">Anjuran</span> : <span id="outOrg">PISMP Pendidikan Khas Prasekolah</span></p>
+            </div>
+
+            <!-- Objectives -->
+            <div class="space-y-1">
+              <h3 class="font-black text-[11px] border-b border-navy/20 pb-0.5">Objektif Program</h3>
+              <div id="outObj" class="space-y-1 font-medium pl-1 leading-snug">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+
+            <!-- Activities -->
+            <div class="space-y-1">
+              <h3 class="font-black text-[11px] border-b border-navy/20 pb-0.5">Pengisian Program</h3>
+              <div id="outAct" class="space-y-2 pl-1 leading-snug">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+
+            <!-- Prepared By -->
+            <div class="pt-1 mt-auto">
+              <h3 class="font-black text-[10px]">Disediakan oleh:</h3>
+              <p id="outPrepBy" class="font-bold mt-0.5">Jawatankuasa Pelaksana PISMP</p>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN (58% Width - Images Grid) -->
+          <div class="w-[58%] h-[180mm] flex shrink-0">
+            <!-- 2x3 CSS Grid, forcing exactly 100% height of parent container -->
+            <div class="w-full h-full grid grid-cols-2 grid-rows-3 gap-2">
+              
+              <div class="w-full h-full overflow-hidden shadow">
+                <img id="img1" src="https://placehold.co/400x300/94a3b8/ffffff?text=Pic+1" class="w-full h-full object-cover border-[3px] border-white box-border">
+              </div>
+              <div class="w-full h-full overflow-hidden shadow">
+                <img id="img2" src="https://placehold.co/400x300/94a3b8/ffffff?text=Pic+2" class="w-full h-full object-cover border-[3px] border-white box-border">
+              </div>
+              <div class="w-full h-full overflow-hidden shadow">
+                <img id="img3" src="https://placehold.co/400x300/94a3b8/ffffff?text=Pic+3" class="w-full h-full object-cover border-[3px] border-white box-border">
+              </div>
+              <div class="w-full h-full overflow-hidden shadow">
+                <img id="img4" src="https://placehold.co/400x300/94a3b8/ffffff?text=Pic+4" class="w-full h-full object-cover border-[3px] border-white box-border">
+              </div>
+              <div class="w-full h-full overflow-hidden shadow">
+                <img id="img5" src="https://placehold.co/400x300/94a3b8/ffffff?text=Pic+5" class="w-full h-full object-cover border-[3px] border-white box-border">
+              </div>
+              <div class="w-full h-full overflow-hidden shadow">
+                <img id="img6" src="https://placehold.co/400x300/94a3b8/ffffff?text=Pic+6" class="w-full h-full object-cover border-[3px] border-white box-border">
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- FOOTER BAR (Absolute Bottom) -->
+      <div class="absolute bottom-0 left-0 w-full h-[12mm] bg-navy text-white flex items-center justify-between px-[12mm] z-20">
+        <div id="outHash" class="text-[9px] font-semibold tracking-wide flex-1">
+          #PendidikanKhasPrasekolah #IPGKTB
+        </div>
+        <div class="flex items-center gap-1.5">
+          <i class="fa-solid fa-flag text-accent text-[10px]"></i>
+          <span class="text-[10px] font-impact uppercase tracking-widest">MALAYSIA MADANI</span>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      
+      // Render Image Input Fields dynamically
+      const imageInputsContainer = document.getElementById('imageInputs');
+      for (let i = 1; i <= 6; i++) {
+        imageInputsContainer.innerHTML += `
+          <div class="bg-slate-50 p-1.5 rounded border">
+            <span class="text-[9px] font-bold block mb-1">Gambar ${i}</span>
+            <input type="file" accept="image/*" onchange="handleImage(this, ${i})" class="w-full text-[9px] file:mr-1 file:py-0.5 file:px-1 file:rounded file:border-0 file:bg-slate-200">
+          </div>
+        `;
+      }
+
+      // Initial Sync
+      updateCanvas();
+
+      // Attach event listeners to all text inputs/textareas
+      const textInputs = ['inpInst', 'inpTitle', 'inpSubtitle', 'inpDate', 'inpDay', 'inpVenue', 'inpOrg', 'inpObj', 'inpAct', 'inpPrepBy', 'inpHash'];
+      textInputs.forEach(id => {
+        document.getElementById(id).addEventListener('input', updateCanvas);
+      });
+
+      // Handle Logo Upload via createObjectURL
+      document.getElementById('inpLogo').addEventListener('change', function(e) {
+        if(e.target.files && e.target.files[0]) {
+          const url = URL.createObjectURL(e.target.files[0]);
+          document.getElementById('outLogo').src = url;
+        }
+      });
+    });
+
+    // Handle individual image uploads
+    function handleImage(input, index) {
+      if(input.files && input.files[0]) {
+        const url = URL.createObjectURL(input.files[0]);
+        document.getElementById(`img${index}`).src = url;
+      }
+    }
+
+    // Sync Text from Form to Canvas
+    function updateCanvas() {
+      // Direct mappings
+      document.getElementById('outInst').innerHTML = document.getElementById('inpInst').value.replace(/\n/g, '<br>') || 'NAMA INSTITUSI';
+      document.getElementById('outTitle').textContent = document.getElementById('inpTitle').value || 'TAJUK UTAMA';
+      document.getElementById('outSubtitle').textContent = document.getElementById('inpSubtitle').value || 'SUBTAJUK';
+      document.getElementById('outDate').textContent = document.getElementById('inpDate').value || '-';
+      document.getElementById('outDay').textContent = document.getElementById('inpDay').value || '-';
+      document.getElementById('outVenue').textContent = document.getElementById('inpVenue').value || '-';
+      document.getElementById('outOrg').textContent = document.getElementById('inpOrg').value || '-';
+      document.getElementById('outPrepBy').textContent = document.getElementById('inpPrepBy').value || '-';
+      document.getElementById('outHash').textContent = document.getElementById('inpHash').value || '-';
+
+      // Process Objectives (split by newline)
+      const objText = document.getElementById('inpObj').value;
+      const objArr = objText.split('\n').filter(t => t.trim() !== '');
+      document.getElementById('outObj').innerHTML = objArr.map(t => `<p>${t}</p>`).join('');
+
+      // Process Activities (split by double newline for Title & Desc)
+      const actText = document.getElementById('inpAct').value;
+      const actArr = actText.split('\n\n').filter(t => t.trim() !== '');
+      document.getElementById('outAct').innerHTML = actArr.map(chunk => {
+        const lines = chunk.split('\n');
+        const boldTitle = lines[0] || '';
+        const desc = lines.slice(1).join(' ') || '';
+        return `<div class="mb-1"><p class="font-bold">${boldTitle}</p><p class="text-[9px] text-slate-700 pl-2 leading-tight">${desc}</p></div>`;
+      }).join('');
+    }
+  </script>
+</body>
+</html>
